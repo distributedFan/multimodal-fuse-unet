@@ -1,0 +1,13 @@
+﻿{
+  "data_path": "data/dc_weather.csv",
+  "train_split": 0.8,
+  "batch_size": 32,
+  "input1_dim": 11,
+  "input2_dim": 12,
+  "hidden1_dim": 4,
+  "hidden2_dim": 64,
+  "decoder_hidden_dim": 32,
+  "output_dim": 17,
+  "epochs": 10,
+  "learning_rate": 0.001
+}

@@ -1,0 +1,16 @@
+﻿{
+  "data_root": "data/RegDB",
+  "train_index_pattern": "data/RegDB/idx/train_thermal_{i}.txt",
+  "test_index_pattern": "data/RegDB/idx/test_thermal_{i}.txt",
+  "index_start": 1,
+  "index_end": 10,
+  "image_size": 128,
+  "train_batch_size": 64,
+  "test_batch_size": 256,
+  "epochs": 100,
+  "learning_rate": 0.001,
+  "thermal_noise_mean": 0.05,
+  "thermal_noise_std": 0.11,
+  "visible_noise_mean": 0.0,
+  "visible_noise_std": 1.0
+}

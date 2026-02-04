@@ -1,4 +1,4 @@
-import torch
+﻿import torch
 import torch.nn as nn
 import torch.optim as optim
 
@@ -15,7 +15,7 @@ class DualModalUNet(nn.Module):
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1),
-            nn.ReLU()
+            nn.ReLU(),
         )
 
         # Encoder for visible images
@@ -26,31 +26,31 @@ class DualModalUNet(nn.Module):
             nn.Conv2d(16, 32, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
-            nn.Conv2d(32, 2, kernel_size=3, stride=1, padding=1),
-            nn.ReLU()
+            nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1),
+            nn.ReLU(),
         )
 
         # Bottleneck
         self.bottleneck = nn.Sequential(
-            nn.Conv2d(66, 128, kernel_size=3, padding=1),
+            nn.Conv2d(128, 128, kernel_size=3, padding=1),
             nn.ReLU(),
             nn.Conv2d(128, 64, kernel_size=3, padding=1),
-            nn.ReLU()
+            nn.ReLU(),
         )
 
-        # Decoder / Up-sampling
+        # Decoder / up-sampling
         self.decoder = nn.Sequential(
             nn.ConvTranspose2d(64, 32, kernel_size=2, stride=2),
             nn.ReLU(),
             nn.ConvTranspose2d(32, 16, kernel_size=2, stride=2),
             nn.ReLU(),
-            nn.ConvTranspose2d(16, 4, kernel_size=1),  # 使用4个输出通道
-            nn.ReLU()  # 使用ReLU来保持非负激活
+            nn.ConvTranspose2d(16, 4, kernel_size=1),
+            nn.ReLU(),
         )
 
-        # Global Average Pooling and a Fully Connected Layer
+        # Global average pooling and a fully connected layer
         self.global_avg_pool = nn.AdaptiveAvgPool2d((1, 1))
-        self.fc = nn.Linear(4, 4)  # 输入特征4, 输出特征4
+        self.fc = nn.Linear(4, 4)
 
     def forward(self, x_thermal, x_visible):
         x_thermal = self.encoder_thermal(x_thermal)
@@ -61,10 +61,43 @@ class DualModalUNet(nn.Module):
         x = self.bottleneck(x)
         x = self.decoder(x)
 
-        # Global Average Pooling
         x = self.global_avg_pool(x)
-        x = torch.flatten(x, 1)  # Flatten the batch
+        x = torch.flatten(x, 1)
         x = self.fc(x)
 
         return x
 
+
+class DualModalMLPNet(nn.Module):
+    def __init__(self, input1_dim, input2_dim, hidden1_dim, hidden2_dim, decoder_hidden_dim, output_dim):
+        super(DualModalMLPNet, self).__init__()
+
+        # Encoder for input1 with specific hidden dimension
+        self.encoder1 = nn.Sequential(
+            nn.Linear(input1_dim, hidden1_dim),
+            nn.ReLU(),
+            nn.Linear(hidden1_dim, hidden1_dim),
+        )
+
+        # Encoder for input2 with specific hidden dimension
+        self.encoder2 = nn.Sequential(
+            nn.Linear(input2_dim, hidden2_dim),
+            nn.ReLU(),
+            nn.Linear(hidden2_dim, hidden2_dim),
+        )
+
+        # Decoder after concatenation
+        self.decoder = nn.Sequential(
+            nn.Linear(hidden1_dim + hidden2_dim, decoder_hidden_dim),
+            nn.ReLU(),
+            nn.Linear(decoder_hidden_dim, output_dim),
+        )
+
+    def forward(self, x1, x2):
+        encoded_x1 = self.encoder1(x1)
+        encoded_x2 = self.encoder2(x2)
+
+        combined = torch.cat([encoded_x1, encoded_x2], dim=1)
+        output = self.decoder(combined)
+
+        return output

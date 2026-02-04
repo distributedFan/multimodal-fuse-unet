@@ -1,80 +1,80 @@
 ﻿# Multimodal Fuse UNet
 
-本项目包含两个独立的双模态示例：
-- RegDB 数据集（热成像 + 可见光）4 类分类，模型为 DualModalUNet。
-- Weather 表格数据的双模态 MLP 分类示例，模型为 DualModalMLPNet。
+This project provides two independent dual‑modal examples:
+- RegDB dataset (thermal + visible) 4‑class classification with DualModalUNet.
+- Weather tabular dual‑modal MLP classification with DualModalMLPNet.
 
-目标是保持逻辑不变的前提下，让结构更清晰、入口更明确。
+The goal is to keep the original logic while making the structure and entry points clearer.
 
-## 目录结构
+## Project Structure
 
 ```
 .
 ├─ data/
-│  ├─ RegDB/                 # RegDB 数据集（热成像/可见光 + idx）
-│  └─ dc_weather.csv         # Weather 表格数据
-├─ data_prepare.py           # 数据集定义（RegDB + Weather）
-├─ configs/                  # 超参数配置（JSON）
-├─ model.py                  # 模型定义（DualModalUNet / DualModalMLPNet）
-├─ MMUnet.py                 # RegDB 训练入口
-├─ MLPnet.py                 # Weather 训练入口
-├─ requirements.txt          # 依赖
+│  ├─ RegDB/                 # RegDB dataset (thermal/visible + idx)
+│  └─ dc_weather.csv         # Weather tabular data
+├─ data_prepare.py           # Dataset definitions (RegDB + Weather)
+├─ configs/                  # Hyperparameter configs (JSON)
+├─ model.py                  # Model definitions (DualModalUNet / DualModalMLPNet)
+├─ MMUnet.py                 # RegDB training entry
+├─ MLPnet.py                 # Weather training entry
+├─ requirements.txt          # Dependencies
 └─ README.md
 ```
 
-## 环境依赖
+## Requirements
 
-建议 Python 3.9+。
+Python 3.9+ is recommended.
 
 ```
 pip install -r requirements.txt
 ```
 
-## 训练入口
+## Training Entry Points
 
-RegDB（双模态图像分类）：
+RegDB (dual‑modal image classification):
 
 ```
 python MMUnet.py
 ```
 
-Weather（双模态表格分类）：
+Weather (dual‑modal tabular classification):
 
 ```
 python MLPnet.py
 ```
 
-## 配置文件与命令行参数
+## Config Files and CLI Overrides
 
-默认配置放在 `configs/` 下：
+Default configs are stored in `configs/`:
 - `configs/unet.json`
 - `configs/mlp.json`
 
-你可以直接改 JSON，也可以用命令行覆盖：
+You can edit the JSON directly, or override fields via CLI:
 
 ```
 python MMUnet.py --epochs 50 --train-batch-size 32
 python MLPnet.py --learning-rate 0.0005 --batch-size 64
 ```
 
-也可以指定配置文件路径：
+You can also specify a config path explicitly:
 
 ```
 python MMUnet.py --config configs/unet.json
 python MLPnet.py --config configs/mlp.json
 ```
 
-## 数据说明
+## Data Notes
 
-- RegDB：使用 `data/RegDB/idx/*.txt` 作为索引文件，代码会自动映射 thermal -> visible 路径，并根据文件名解析四分类标签。
-- Weather：使用 `data/dc_weather.csv`，按列索引丢弃无用字段，并将特征一分为二作为两个模态输入。
+- RegDB: uses `data/RegDB/idx/*.txt` index files. The code maps thermal -> visible paths and derives 4‑class labels from filenames.
+- Weather: uses `data/dc_weather.csv`, drops unused columns by index, and splits features into two modalities.
 
-## 超参数修改位置
+## Hyperparameter Changes
 
-- 推荐在 `configs/unet.json` 与 `configs/mlp.json` 中修改。
-- 也可以通过命令行参数覆盖对应字段（见上文示例）。
+- Prefer editing `configs/unet.json` and `configs/mlp.json`.
+- CLI args can override any config field (see examples above).
 
-## 备注
+## Notes
 
-- 所有路径均以项目根目录为相对路径。
-- 如果你计划扩展为包结构，可将 `model.py` 与 `data_prepare.py` 下沉到 `src/` 并增加 `__init__.py`，训练脚本保持不变即可。
+- All paths are relative to the project root.
+- If you want to refactor into a package layout, move `model.py` and `data_prepare.py` into `src/` and add `__init__.py`. Training scripts can remain unchanged.

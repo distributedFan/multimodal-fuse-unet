@@ -27,13 +27,17 @@ DEFAULT_CONFIG = {
     "thermal_noise_std": 0.11,
     "visible_noise_mean": 0.0,
     "visible_noise_std": 1.0,
+    "thermal_out_channels": 64,
+    "visible_out_channels": 64,
+    "bottleneck_channels": 128,
+    "decoder_in_channels": 64,
 }
 
 
 def load_config(path):
     config = DEFAULT_CONFIG.copy()
     if path and os.path.isfile(path):
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, "r", encoding="utf-8-sig") as f:
             file_config = json.load(f)
         config.update(file_config)
     return config
@@ -56,6 +60,10 @@ def parse_args():
     parser.add_argument("--thermal-noise-std", dest="thermal_noise_std", type=float)
     parser.add_argument("--visible-noise-mean", dest="visible_noise_mean", type=float)
     parser.add_argument("--visible-noise-std", dest="visible_noise_std", type=float)
+    parser.add_argument("--thermal-out-channels", dest="thermal_out_channels", type=int)
+    parser.add_argument("--visible-out-channels", dest="visible_out_channels", type=int)
+    parser.add_argument("--bottleneck-channels", dest="bottleneck_channels", type=int)
+    parser.add_argument("--decoder-in-channels", dest="decoder_in_channels", type=int)
 
     args = parser.parse_args()
     config = load_config(args.config)
@@ -165,7 +173,12 @@ def main():
     )
     test_loader = DataLoader(test_dataset, batch_size=config["test_batch_size"], shuffle=False)
 
-    model = DualModalUNet().to(device)
+    model = DualModalUNet(
+        thermal_out_channels=config["thermal_out_channels"],
+        visible_out_channels=config["visible_out_channels"],
+        bottleneck_channels=config["bottleneck_channels"],
+        decoder_in_channels=config["decoder_in_channels"],
+    ).to(device)
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=config["learning_rate"])
 

@@ -1,4 +1,4 @@
-﻿{
+{
   "data_root": "data/RegDB",
   "train_index_pattern": "data/RegDB/idx/train_thermal_{i}.txt",
   "test_index_pattern": "data/RegDB/idx/test_thermal_{i}.txt",
@@ -12,5 +12,9 @@
   "thermal_noise_mean": 0.05,
   "thermal_noise_std": 0.11,
   "visible_noise_mean": 0.0,
-  "visible_noise_std": 1.0
+  "visible_noise_std": 1.0,
+  "thermal_out_channels": 64,
+  "visible_out_channels": 64,
+  "bottleneck_channels": 128,
+  "decoder_in_channels": 64
 }

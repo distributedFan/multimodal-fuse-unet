@@ -28,7 +28,7 @@ DEFAULT_CONFIG = {
 def load_config(path):
     config = DEFAULT_CONFIG.copy()
     if path and os.path.isfile(path):
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, "r", encoding="utf-8-sig") as f:
             file_config = json.load(f)
         config.update(file_config)
     return config
@@ -85,12 +85,12 @@ def main():
     criterion = nn.CrossEntropyLoss()
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    # model.to(device)
+    model = model.to(device)
 
     for epoch in range(config["epochs"]):
         model.train()
         for (x1, x2), labels in tqdm(train_loader):
-            # x1, x2, labels = x1.to(device), x2.to(device), labels.to(device)
+            x1, x2, labels = x1.to(device), x2.to(device), labels.to(device)
             optimizer.zero_grad()
 
             outputs = model(x1, x2)
@@ -106,7 +106,7 @@ def main():
     total = 0
     with torch.no_grad():
         for (x1, x2), labels in test_loader:
-            # x1, x2, labels = x1.to(device), x2.to(device), labels.to(device)
+            x1, x2, labels = x1.to(device), x2.to(device), labels.to(device)
             outputs = model(x1, x2)
             _, predicted = torch.max(outputs, 1)
             total += labels.size(0)
